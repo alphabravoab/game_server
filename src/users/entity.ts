@@ -15,6 +15,17 @@ export default class User extends BaseEntity {
   email: string
 
   @IsString()
+  @MinLength(2)
+  @Column('text', {default:"Alpha"})
+  firstName: string
+
+  @IsString()
+  @MinLength(2)
+  @Column('text', {default: "Trion"})
+  lastName: string
+
+
+  @IsString()
   @MinLength(8)
   @Column('text')
   @Exclude({ toPlainOnly: true })

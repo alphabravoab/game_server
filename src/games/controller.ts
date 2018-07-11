@@ -53,12 +53,14 @@ export default class GameController {
     const game = await Game.findOneById(gameId)
     if (!game) throw new BadRequestError(`Game does not exist`)
     if (game.status !== 'pending') throw new BadRequestError(`Game is already started`)
+    
     game.status = 'started'
     await game.save()
 
     const player = await Player.create({
       game, 
       user,
+      symbol: 'o'
     }).save()
 
     io.emit('action', {
@@ -85,9 +87,9 @@ export default class GameController {
     if (!player) throw new ForbiddenError(`You are not part of this game`)
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
-    // const attacker= await game.players.filter((player)=>player.userId===user.id)
-    // const defender= await game.players.filter((player)=>player.userId!==user.id)
-    // attack(attacker,defender)
+    const attacker= await game.players.filter((player)=>player.userId===user.id)
+    const defender= await game.players.filter((player)=>player.userId!==user.id)
+    attack(attacker,defender)
     game.turn = player.symbol === 'x' ? 'o' : 'x'
     
     await game.save()
