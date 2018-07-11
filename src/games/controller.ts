@@ -13,7 +13,7 @@ import {io} from '../index'
 
 
 export const attack=(attacker,defender)=>{
-  defender.health= defender.health-attacker.attack
+  return defender.health= defender.health-attacker.attack
  }
 
 @JsonController()
@@ -89,10 +89,12 @@ export default class GameController {
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
     const attacker= await game.players.filter((player)=>player.userId===user.id)
     const defender= await game.players.filter((player)=>player.userId!==user.id)
-    attack(attacker,defender)
+    attack(attacker[0],defender[0])
     game.turn = player.symbol === 'x' ? 'o' : 'x'
-    
+ 
+    //await Player.merge(defender[0])
     await game.save()
+    
     
     io.emit('action', {
       type: 'UPDATE_GAME',
