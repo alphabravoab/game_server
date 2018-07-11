@@ -6,15 +6,16 @@ import {
 } from 'routing-controllers'
 import User from '../users/entity'
 import { Game, Player } from './entities'
-//import { attack } from './logic'
+import { attacking } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
 //import { currentId } from 'async_hooks';
 
 
-export const attack=(attacker,defender)=>{
-  defender.health= defender.health-attacker.attack
- }
+// export const attack = (attacker,defender) => {
+//   defender.health = defender.health - 15
+//   // attacker.attack
+// }
 
 @JsonController()
 export default class GameController {
@@ -84,12 +85,24 @@ export default class GameController {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
     const player = await Player.findOne({ user, game })
+    const player2 = await Player.findOne({ user, game })
     if (!player) throw new ForbiddenError(`You are not part of this game`)
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
-    const attacker= await game.players.filter((player)=>player.userId===user.id)
-    const defender= await game.players.filter((player)=>player.userId!==user.id)
-    attack(attacker,defender)
+
+
+
+    attacking(player, player2)
+
+
+    // const attacker= await game.players.filter((player)=>player.userId===user.id)
+    // const defender= await game.players.filter((player)=>player.userId!==user.id)
+    // const newHealth = () => 
+    // {
+    // attack(attacker,defender)
+    // }
+    // update.defender.health 
+
     game.turn = player.symbol === 'x' ? 'o' : 'x'
     
     await game.save()
@@ -98,7 +111,6 @@ export default class GameController {
       type: 'UPDATE_GAME',
       payload: game
     })
-
     return game
   }
 
