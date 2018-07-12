@@ -1,25 +1,23 @@
 import { 
-  JsonController, Authorized, CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
+  JsonController, 
+  //Authorized, 
+  CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
   Body, Patch 
 } from 'routing-controllers'
 import User from '../users/entity'
-import { Game, Player, Board } from './entities'
-import {IsBoard, isValidTransition, calculateWinner, finished} from './logic'
-import { Validate } from 'class-validator'
+import { Game, Player } from './entities'
+import { attack } from './logic'
+//import { Validate } from 'class-validator'
 import {io} from '../index'
+//import { currentId } from 'async_hooks';
 
-class GameUpdate {
 
-  @Validate(IsBoard, {
-    message: 'Not a valid board'
-  })
-  board: Board
-}
+
 
 @JsonController()
 export default class GameController {
 
-  @Authorized()
+ // @Authorized()
   @Post('/games')
   @HttpCode(201)
   async createGame(
@@ -39,11 +37,11 @@ export default class GameController {
       type: 'ADD_GAME',
       payload: game
     })
-
+    
     return game
   }
 
-  @Authorized()
+ // @Authorized()
   @Post('/games/:id([0-9]+)/players')
   @HttpCode(201)
   async joinGame(
@@ -53,7 +51,7 @@ export default class GameController {
     const game = await Game.findOneById(gameId)
     if (!game) throw new BadRequestError(`Game does not exist`)
     if (game.status !== 'pending') throw new BadRequestError(`Game is already started`)
-
+    
     game.status = 'started'
     await game.save()
 
@@ -71,7 +69,7 @@ export default class GameController {
     return player
   }
 
-  @Authorized()
+ // @Authorized()
   // the reason that we're using patch here is because this request is not idempotent
   // http://restcookbook.com/HTTP%20Methods/idempotency/
   // try to fire the same requests twice, see what happens
@@ -79,33 +77,37 @@ export default class GameController {
   async updateGame(
     @CurrentUser() user: User,
     @Param('id') gameId: number,
-    @Body() update: GameUpdate
+    @Body() _: Partial<Game>
   ) {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
-
-    const player = await Player.findOne({ user, game })
-
+    let player = await Player.findOne({ user, game })
     if (!player) throw new ForbiddenError(`You are not part of this game`)
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
-    if (!isValidTransition(player.symbol, game.board, update.board)) {
-      throw new BadRequestError(`Invalid move`)
-    }    
-
-    const winner = calculateWinner(update.board)
-    if (winner) {
-      game.winner = winner
-      game.status = 'finished'
+    const attacker= await game.players.find((player)=>player.userId===user.id)
+    const defender= await game.players.find((player)=>player.userId!==user.id)
+    if (attacker!=undefined)
+    {
+      const attac=Math.floor(Math.random()*30)
+      attack(attac,defender)
     }
-    else if (finished(update.board)) {
+
+    
+  
+    if (defender!=undefined)await defender.save()
+    if (defender!=undefined && attacker!=undefined  ){
+    if (defender.health<=0) {
+      game.winner = player.symbol
       game.status = 'finished'
     }
     else {
       game.turn = player.symbol === 'x' ? 'o' : 'x'
+
     }
-    game.board = update.board
+  }
     await game.save()
+    
     
     io.emit('action', {
       type: 'UPDATE_GAME',
@@ -114,8 +116,17 @@ export default class GameController {
 
     return game
   }
+  // async updatePlayer(
+  //   @CurrentUser() user: User,
+  //   @Param('id') gameId: number,
+  //   @Body() _: Partial<Game>
+  // ){
+  //   const game = await Game.findOneById(gameId)
+  //   const attacker= await game.players.find((player)=>player.userId===user.id)
+  //   const defender= await game.players.find((player)=>player.userId!==user.id)
+  // }
 
-  @Authorized()
+  //@Authorized()
   @Get('/games/:id([0-9]+)')
   getGame(
     @Param('id') id: number
@@ -123,7 +134,7 @@ export default class GameController {
     return Game.findOneById(id)
   }
 
-  @Authorized()
+  //@Authorized()
   @Get('/games')
   getGames() {
     return Game.find()
