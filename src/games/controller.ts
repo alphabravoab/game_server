@@ -5,7 +5,9 @@ import {
   Body, Patch 
 } from 'routing-controllers'
 import User from '../users/entity'
-import { Game, Player } from './entities'
+import { Game, Player, 
+  //Board 
+} from './entities'
 import { attack } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
@@ -92,6 +94,8 @@ export default class GameController {
       const attac=Math.floor(Math.random()*30)
       attack(attac,defender)
     }
+
+        // attack(game.board[][],defender)
 
     
   
