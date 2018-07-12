@@ -1,6 +1,6 @@
 import { 
   JsonController, 
-  //Authorized, 
+  Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
   Body, Patch 
 } from 'routing-controllers'
@@ -17,7 +17,7 @@ import {io} from '../index'
 @JsonController()
 export default class GameController {
 
- // @Authorized()
+  @Authorized()
   @Post('/games')
   @HttpCode(201)
   async createGame(
@@ -41,7 +41,7 @@ export default class GameController {
     return game
   }
 
- // @Authorized()
+  @Authorized()
   @Post('/games/:id([0-9]+)/players')
   @HttpCode(201)
   async joinGame(
@@ -69,7 +69,7 @@ export default class GameController {
     return player
   }
 
- // @Authorized()
+  @Authorized()
   // the reason that we're using patch here is because this request is not idempotent
   // http://restcookbook.com/HTTP%20Methods/idempotency/
   // try to fire the same requests twice, see what happens
@@ -116,17 +116,9 @@ export default class GameController {
 
     return game
   }
-  // async updatePlayer(
-  //   @CurrentUser() user: User,
-  //   @Param('id') gameId: number,
-  //   @Body() _: Partial<Game>
-  // ){
-  //   const game = await Game.findOneById(gameId)
-  //   const attacker= await game.players.find((player)=>player.userId===user.id)
-  //   const defender= await game.players.find((player)=>player.userId!==user.id)
-  // }
 
-  //@Authorized()
+
+  @Authorized()
   @Get('/games/:id([0-9]+)')
   getGame(
     @Param('id') id: number
@@ -134,7 +126,7 @@ export default class GameController {
     return Game.findOneById(id)
   }
 
-  //@Authorized()
+  @Authorized()
   @Get('/games')
   getGames() {
     return Game.find()
