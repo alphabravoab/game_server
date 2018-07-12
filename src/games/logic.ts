@@ -1,5 +1,6 @@
 //import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator'
-import { Board, Symbol, Row } from './entities'
+import { Board, Symbol } from './entities'
+//import { Game } from './entities';
 
 //@ValidatorConstraint()
 export class IsBoard 
@@ -33,24 +34,38 @@ export const isValidTransition = (playerSymbol: Symbol, from: Board, to: Board) 
     changes[0].from === null
 }
 
-export const calculateWinner = (board: Board): Symbol | null =>
-  board
-    .concat(
-      // vertical winner
-      [0, 1, 2].map(n => board.map(row => row[n])) as Row[]
-    )
-    .concat(
-      [
-        // diagonal winner ltr
-        [0, 1, 2].map(n => board[n][n]),
-        // diagonal winner rtl
-        [0, 1, 2].map(n => board[2-n][n])
-      ] as Row[]
-    )
-    .filter(row => row[0] && row.every(symbol => symbol === row[0]))
-    .map(row => row[0])[0] || null
+// export const calculateWinner = (board: Board): Symbol | null =>
+//   board
+//     .concat(
+//       // vertical winner
+//       [0, 1, 2].map(n => board.map(row => row[n])) as Row[]
+//     )
+//     .concat(
+//       [
+//         // diagonal winner ltr
+//         [0, 1, 2].map(n => board[n][n]),
+//         // diagonal winner rtl
+//         [0, 1, 2].map(n => board[2-n][n])
+//       ] as Row[]
+//     )
+//     .filter(row => row[0] && row.every(symbol => symbol === row[0]))
+//     .map(row => row[0])[0] || null
+    
+    export const calculateWinner = (board: Board) => {
+      board[1][2] <= 0 || board[0][2] <= 0
+    }
+      // board
+      //   .concat(
+      //     //player1 is winner
+      //     board[1][2] <= 0
+      //   )
+      //   .concat(
+      //     //player2 is winner
+      //     board[0][2] <= 0
+      //   )  
 
-export const finished = (board: Board): boolean =>
-  board
-    .reduce((a,b) => a.concat(b) as Row)
-    .every(symbol => symbol !== null)
+
+// export const finished = (board: Board): boolean =>
+//   board
+//     .reduce((a,b) => a.concat(b) as Row)
+//     .every(symbol => symbol !== null)
