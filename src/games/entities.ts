@@ -1,15 +1,16 @@
 import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, Index, OneToMany, ManyToOne } from 'typeorm'
 import User from '../users/entity'
 
-export type Symbol = 'x' | 'o'
+export type Symbol = 'x' | 'o' 
+export type Number = number 
 export type Row = [ Number, Number, Number ]
 export type Board = [ Row, Row, Row ]
 
 type Status = 'pending' | 'started' | 'finished'
 
-const attackRow1: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 100 % 100); })
-const attackRow2: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 100 % 100); })
-const attackRow3: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 100 % 100); })
+const attackRow1: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 50 % 50); })
+const attackRow2: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 50 % 50); })
+const attackRow3: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 50 % 50); })
 const attackBoard: Board = [ attackRow1, attackRow2, attackRow3 ]
 
 @Entity()
@@ -55,9 +56,9 @@ export class Player extends BaseEntity {
   @Column('char', {length: 1})
   symbol: Symbol
 
-  @Column('int',{default:100})
+  @Column('int',{default: 100})
   health: number
 
-  @Column('int', {default:15})
+  @Column('int', {default: 20})
   attack: number
 }
