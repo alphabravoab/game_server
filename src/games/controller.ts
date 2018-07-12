@@ -2,19 +2,28 @@ import {
   JsonController, 
   //Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
-  Body, Patch 
+  Body, Patch
 } from 'routing-controllers'
 import User from '../users/entity'
-import { Game, Player } from './entities'
-//import { attack } from './logic'
-//import { Validate } from 'class-validator'
+import { Game, Player, Board } from './entities'
+// import { IsBoard, 
+//   isValidTransition, 
+//   calculateWinner, 
+//   finished
+// } from './logic'
+// import { Validate } from 'class-validator'
 import {io} from '../index'
-//import { currentId } from 'async_hooks';
 
+// export const attack=(attacker,defender)=>{
+//   return defender.health= defender.health-attacker.attack
+//  }
 
-export const attack=(attacker,defender)=>{
-  return defender.health= defender.health-attacker.attack
- }
+class GameUpdate {
+//   @Validate(IsBoard, {
+//     message: 'Not a valid board'
+//   })
+   board: Board
+}
 
 @JsonController()
 export default class GameController {
@@ -79,23 +88,39 @@ export default class GameController {
   async updateGame(
     @CurrentUser() user: User,
     @Param('id') gameId: number,
-    @Body() _: Partial<Game>
+    @Body() update: GameUpdate
   ) {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
+
     const player = await Player.findOne({ user, game })
+
     if (!player) throw new ForbiddenError(`You are not part of this game`)
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
-    const attacker= await game.players.filter((player)=>player.userId===user.id)
-    const defender= await game.players.filter((player)=>player.userId!==user.id)
-    attack(attacker[0],defender[0])
-    game.turn = player.symbol === 'x' ? 'o' : 'x'
- 
-    //await Player.merge(defender[0])
+    // if (!isValidTransition(player.symbol, game.board, update.board)) {
+    //   throw new BadRequestError(`Invalid move`)
+    // }
+
+    // const winner = calculateWinner(update.board)
+    // if (winner) {
+    //   game.winner = winner
+    //   game.status = 'finished'
+    // }
+    // else if (finished(update.board)) {
+    //   game.status = 'finished'
+    // }
+    // else {
+      game.turn = player.symbol === 'x' ? 'o' : 'x'
+    //}
+    game.board = update.board
     await game.save()
     
+    // const attacker= await game.players.filter((player)=>player.userId===user.id)
+    // const defender= await game.players.filter((player)=>player.userId!==user.id)
     
+    // attack(attacker[0],defender[0])
+  
     io.emit('action', {
       type: 'UPDATE_GAME',
       payload: game
