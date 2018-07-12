@@ -83,16 +83,17 @@ export default class GameController {
   ) {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
-    const player = await Player.findOne({ user, game })
+    let player = await Player.findOne({ user, game })
     if (!player) throw new ForbiddenError(`You are not part of this game`)
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
-    const attacker= await game.players.filter((player)=>player.userId===user.id)
-    const defender= await game.players.filter((player)=>player.userId!==user.id)
-    attack(attacker[0],defender[0])
+    const attacker= await game.players.find((player)=>player.userId===user.id)
+    const defender= await game.players.find((player)=>player.userId!==user.id)
+    attack(attacker,defender)
+   
     game.turn = player.symbol === 'x' ? 'o' : 'x'
- 
-    //await Player.merge(defender[0])
+
+    if (defender!=undefined)await defender.save()
     await game.save()
     
     
@@ -103,6 +104,15 @@ export default class GameController {
 
     return game
   }
+  // async updatePlayer(
+  //   @CurrentUser() user: User,
+  //   @Param('id') gameId: number,
+  //   @Body() _: Partial<Game>
+  // ){
+  //   const game = await Game.findOneById(gameId)
+  //   const attacker= await game.players.find((player)=>player.userId===user.id)
+  //   const defender= await game.players.find((player)=>player.userId!==user.id)
+  // }
 
   //@Authorized()
   @Get('/games/:id([0-9]+)')
