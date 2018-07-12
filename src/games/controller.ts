@@ -5,16 +5,19 @@ import {
   Body, Patch 
 } from 'routing-controllers'
 import User from '../users/entity'
-import { Game, Player } from './entities'
+import { Game, Player, Board } from './entities'
 //import { attack } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
 //import { currentId } from 'async_hooks';
 
+// export const attack=(attacker,defender)=>{
+//   return defender.health= defender.health-attacker.attack
+// }
 
-export const attack=(attacker,defender)=>{
-  return defender.health= defender.health-attacker.attack
- }
+// export const attack=(board[][]: Number, defender) => {
+//   return defender.health= defender.health-board[][]
+// }
 
 @JsonController()
 export default class GameController {
@@ -89,7 +92,8 @@ export default class GameController {
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
     const attacker= await game.players.find((player)=>player.userId===user.id)
     const defender= await game.players.find((player)=>player.userId!==user.id)
-    attack(attacker,defender)
+    //attack(attacker,defender)
+    // attack(game.board[][],defender)
    
     game.turn = player.symbol === 'x' ? 'o' : 'x'
 

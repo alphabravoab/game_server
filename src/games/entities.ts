@@ -2,9 +2,15 @@ import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, Index, OneToMany, M
 import User from '../users/entity'
 
 export type Symbol = 'x' | 'o'
+export type Row = [ Number, Number, Number ]
+export type Board = [ Row, Row, Row ]
 
 type Status = 'pending' | 'started' | 'finished'
 
+const attackRow1: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 100 % 100); })
+const attackRow2: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 100 % 100); })
+const attackRow3: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 100 % 100); })
+const attackBoard: Board = [ attackRow1, attackRow2, attackRow3 ]
 
 @Entity()
 export class Game extends BaseEntity {
@@ -12,6 +18,8 @@ export class Game extends BaseEntity {
   @PrimaryGeneratedColumn()
   id?: number
 
+  @Column('json', {default: attackBoard})
+  board: Board
 
   @Column('char', {length:1, default: 'x'})
   turn: Symbol
