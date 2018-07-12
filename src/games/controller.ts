@@ -2,13 +2,14 @@ import {
   JsonController, 
   Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
-  Body, Patch 
+  Body, Patch, BodyParam 
 } from 'routing-controllers'
 import User from '../users/entity'
 import { Game, Player } from './entities'
 import { attack } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
+//import { setInterval } from 'timers';
 //import { currentId } from 'async_hooks';
 
 
@@ -76,7 +77,8 @@ export default class GameController {
   @Patch('/games/:id([0-9]+)')
   async updateGame(
     @CurrentUser() user: User,
-    @Param('id') gameId: number,
+    @Param('id') gameId: number, 
+    @BodyParam('damage') damage:number, 
     @Body() _: Partial<Game>
   ) {
     const game = await Game.findOneById(gameId)
@@ -87,23 +89,22 @@ export default class GameController {
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
     const attacker= await game.players.find((player)=>player.userId===user.id)
     const defender= await game.players.find((player)=>player.userId!==user.id)
-    if (attacker!=undefined)
-    {
-      const attac=Math.floor(Math.random()*30)
-      attack(attac,defender)
-    }
-
-    
   
+    if (damage!=undefined)
+    {
+      const attac=damage
+      attack(attac,defender)
+      game.turn = player.symbol === 'x' ? 'o' : 'x'
+    } else throw new BadRequestError(`damage isnt there fix your code`)
+    //switchToken(game,player) 
+   
+    
+    
     if (defender!=undefined)await defender.save()
     if (defender!=undefined && attacker!=undefined  ){
     if (defender.health<=0) {
       game.winner = player.symbol
       game.status = 'finished'
-    }
-    else {
-      game.turn = player.symbol === 'x' ? 'o' : 'x'
-
     }
   }
     await game.save()

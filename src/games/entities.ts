@@ -1,5 +1,6 @@
 import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, Index, OneToMany, ManyToOne } from 'typeorm'
 import User from '../users/entity'
+import { IsString } from 'class-validator';
 
 export type Symbol = 'x' | 'o'
 
@@ -17,8 +18,9 @@ export class Game extends BaseEntity {
   turn: Symbol
 
 
-  @Column('char', {length:1, nullable: true})
-  winner: Symbol
+  @IsString()
+  @Column('text', {nullable:true})
+  winner: String
   
   
   @Column('text', {default: 'pending'})
@@ -52,6 +54,6 @@ export class Player extends BaseEntity {
   @Column('int',{default:100})
   health: number
 
-  @Column('int', {default:15})
-  attack: number
+  // @Column('int', {default:15})
+  // attack: number
 }
