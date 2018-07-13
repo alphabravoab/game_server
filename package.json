@@ -1,13 +1,14 @@
 {
   "name": "game-starter-b15-server",
   "version": "1.0.0",
-  "main": "target/index.js",
+  "main": "./target/index.js",
   "private": true,
   "scripts": {
     "start": "node .",
     "test": "node_modules/.bin/mocha --require ts-node/register src/**/*.spec.ts",
     "watch": "node_modules/.bin/tsc -w",
-    "compile": "node_modules/.bin/tsc -p ."
+    "compile": "node_modules/.bin/tsc -p .", 
+    "postinstall": "yarn tsc"
   },
   "dependencies": {
     "@types/bcrypt": "^1.0.0",
