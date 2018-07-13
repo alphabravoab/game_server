@@ -60,6 +60,10 @@ __decorate([
     __metadata("design:type", Game)
 ], Player.prototype, "game", void 0);
 __decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Player.prototype, "userId", void 0);
+__decorate([
     typeorm_1.Column('char', { length: 1 }),
     __metadata("design:type", String)
 ], Player.prototype, "symbol", void 0);
