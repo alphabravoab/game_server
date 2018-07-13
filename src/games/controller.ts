@@ -1,6 +1,6 @@
 import { 
   JsonController, 
-  //Authorized, 
+  Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
   Body, 
   Patch
@@ -15,7 +15,7 @@ import {io} from '../index'
 @JsonController()
 export default class GameController {
 
-  //@Authorized()
+  @Authorized()
   @Post('/games')
   @HttpCode(201)
   async createGame(
@@ -39,7 +39,7 @@ export default class GameController {
     return game
   }
 
-  //@Authorized()
+  @Authorized()
   @Post('/games/:id([0-9]+)/players')
   @HttpCode(201)
   async joinGame(
@@ -67,7 +67,7 @@ export default class GameController {
     return player
   }
 
- // @Authorized()
+ @Authorized()
   // the reason that we're using patch here is because this request is not idempotent
   // http://restcookbook.com/HTTP%20Methods/idempotency/
   // try to fire the same requests twice, see what happens
@@ -118,7 +118,7 @@ export default class GameController {
     return game
   }
 
-  //@Authorized()
+  @Authorized()
   @Get('/games/:id([0-9]+)')
   getGame(
     @Param('id') id: number
