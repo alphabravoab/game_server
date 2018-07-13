@@ -65,6 +65,6 @@ export class Player extends BaseEntity {
   @Column('int',{default: 100})
   health: number
 
-  @Column('int', {default: 20})
+  @Column('int', {default: 0})
   attack: number
 }

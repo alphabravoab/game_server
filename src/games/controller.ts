@@ -108,7 +108,6 @@ export default class GameController {
         game.turn = player.symbol === 'x' ? 'o' : 'x'
       }
     }
-
     await game.save()
     
     
