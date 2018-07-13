@@ -2,12 +2,12 @@ import {
   JsonController, 
   //Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
-//  Body, 
+  Body, 
   Patch
 } from 'routing-controllers'
 import User from '../users/entity'
 import { Game, Player } from './entities'
-//import { attack } from './logic'
+import { attack } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
 
@@ -75,7 +75,7 @@ export default class GameController {
   async updateGame(
     @CurrentUser() user: User,
     @Param('id') gameId: number,
-    //@Body() attackPlayer: Player
+    @Body() attackPlayer: Player
   ) {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
@@ -88,26 +88,26 @@ export default class GameController {
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
     
-    // const attacker= await game.players.find((player)=>player.userId===user.id)
-    // const defender= await game.players.find((player)=>player.userId!==user.id)
+    const attacker= await game.players.find((player)=>player.userId===user.id)
+    const defender= await game.players.find((player)=>player.userId!==user.id)
 
-    // if (attacker!=undefined) {
-    //   //console.log("befire" + attacker.attack)
-    //   attacker.attack = attackPlayer.attack;
-    //   //console.log("after" + attacker.attack)
-    //   attack(attacker,defender)
-    // }
+    if (attacker!=undefined) {
+      //console.log("befire" + attacker.attack)
+      attacker.attack = attackPlayer.attack;
+      //console.log("after" + attacker.attack)
+      attack(attacker,defender)
+    }
           
-    // if (defender!=undefined)await defender.save()
-    // if (defender!=undefined && attacker!=undefined) {
-    //   if (defender.health <= 0) {
-    //     game.winner = player.symbol
-    //     game.status = 'finished'
-    //   }
-    //   else {
-    //     game.turn = player.symbol === 'x' ? 'o' : 'x'
-    //   }
-    // }
+    if (defender!=undefined)await defender.save()
+    if (defender!=undefined && attacker!=undefined) {
+      if (defender.health <= 0) {
+        game.winner = player.symbol
+        game.status = 'finished'
+      }
+      else {
+        game.turn = player.symbol === 'x' ? 'o' : 'x'
+      }
+    }
     await game.save()
     
     
