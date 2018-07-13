@@ -2,12 +2,12 @@ import {
   JsonController, 
   //Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
-  Body, 
+//  Body, 
   Patch
 } from 'routing-controllers'
 import User from '../users/entity'
 import { Game, Player } from './entities'
-import { attack } from './logic'
+//import { attack } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
 
@@ -75,7 +75,7 @@ export default class GameController {
   async updateGame(
     @CurrentUser() user: User,
     @Param('id') gameId: number,
-    @Body() attackPlayer: Player
+    //@Body() attackPlayer: Player
   ) {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
