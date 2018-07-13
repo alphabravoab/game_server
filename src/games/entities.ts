@@ -1,10 +1,22 @@
 import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, Index, OneToMany, ManyToOne } from 'typeorm'
 import User from '../users/entity'
 
-export type Symbol = 'x' | 'o'
+export type Symbol = 'x' | 'o' 
+export type Number = number
+export type Row = [ Number, Number, Number ]
+//export type Row = [ Number | null , Number | null , Number | null  ]
+
+export type Board = [ Row, Row, Row ]
 
 type Status = 'pending' | 'started' | 'finished'
 
+const attackRow1: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 50 % 50); })
+const attackRow2: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 50 % 50); })
+const attackRow3: Row = Array.apply(null, Array(3)).map(function() { return Math.floor(Math.random() * 50 % 50); })
+const attackBoard: Board = [ attackRow1, attackRow2, attackRow3 ]
+
+// const emptyRow: Row = [null, null, null]
+// const emptyBoard: Board = [ emptyRow, emptyRow, emptyRow ]
 
 @Entity()
 export class Game extends BaseEntity {
@@ -12,14 +24,15 @@ export class Game extends BaseEntity {
   @PrimaryGeneratedColumn()
   id?: number
 
+  @Column('json', {default: attackBoard})
+  //@Column('json', {default: emptyBoard})
+  board: Board
 
   @Column('char', {length:1, default: 'x'})
   turn: Symbol
 
-
   @Column('char', {length:1, nullable: true})
-  winner: Symbol
-  
+  winner: Symbol  
   
   @Column('text', {default: 'pending'})
   status: Status
@@ -49,9 +62,9 @@ export class Player extends BaseEntity {
   @Column('char', {length: 1})
   symbol: Symbol
 
-  @Column('int',{default:100})
+  @Column('int',{default: 100})
   health: number
 
-  @Column('int', {default:15})
+  @Column('int', {default: 0})
   attack: number
 }

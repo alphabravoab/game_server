@@ -2,22 +2,20 @@ import {
   JsonController, 
   //Authorized, 
   CurrentUser, Post, Param, BadRequestError, HttpCode, NotFoundError, ForbiddenError, Get, 
-  Body, Patch 
+  Body, 
+  Patch
 } from 'routing-controllers'
 import User from '../users/entity'
 import { Game, Player } from './entities'
 import { attack } from './logic'
 //import { Validate } from 'class-validator'
 import {io} from '../index'
-//import { currentId } from 'async_hooks';
-
-
 
 
 @JsonController()
 export default class GameController {
 
- // @Authorized()
+  //@Authorized()
   @Post('/games')
   @HttpCode(201)
   async createGame(
@@ -41,7 +39,7 @@ export default class GameController {
     return game
   }
 
- // @Authorized()
+  //@Authorized()
   @Post('/games/:id([0-9]+)/players')
   @HttpCode(201)
   async joinGame(
@@ -77,35 +75,39 @@ export default class GameController {
   async updateGame(
     @CurrentUser() user: User,
     @Param('id') gameId: number,
-    @Body() _: Partial<Game>
+    @Body() attackPlayer: Player
   ) {
     const game = await Game.findOneById(gameId)
     if (!game) throw new NotFoundError(`Game does not exist`)
-    let player = await Player.findOne({ user, game })
+    // const str = JSON.stringify(attackPlayer, null, 4);
+    // console.log(str)
+    
+    const player = await Player.findOne({ user, game })
+    
     if (!player) throw new ForbiddenError(`You are not part of this game`)
     if (game.status !== 'started') throw new BadRequestError(`The game is not started yet`)
     if (player.symbol !== game.turn) throw new BadRequestError(`It's not your turn`)
+    
     const attacker= await game.players.find((player)=>player.userId===user.id)
     const defender= await game.players.find((player)=>player.userId!==user.id)
-    if (attacker!=undefined)
-    {
-      const attac=Math.floor(Math.random()*30)
-      attack(attac,defender)
-    }
 
-    
-  
+    if (attacker!=undefined) {
+      //console.log("befire" + attacker.attack)
+      attacker.attack = attackPlayer.attack;
+      //console.log("after" + attacker.attack)
+      attack(attacker,defender)
+    }
+          
     if (defender!=undefined)await defender.save()
-    if (defender!=undefined && attacker!=undefined  ){
-    if (defender.health<=0) {
-      game.winner = player.symbol
-      game.status = 'finished'
+    if (defender!=undefined && attacker!=undefined) {
+      if (defender.health <= 0) {
+        game.winner = player.symbol
+        game.status = 'finished'
+      }
+      else {
+        game.turn = player.symbol === 'x' ? 'o' : 'x'
+      }
     }
-    else {
-      game.turn = player.symbol === 'x' ? 'o' : 'x'
-
-    }
-  }
     await game.save()
     
     
@@ -113,18 +115,8 @@ export default class GameController {
       type: 'UPDATE_GAME',
       payload: game
     })
-
     return game
   }
-  // async updatePlayer(
-  //   @CurrentUser() user: User,
-  //   @Param('id') gameId: number,
-  //   @Body() _: Partial<Game>
-  // ){
-  //   const game = await Game.findOneById(gameId)
-  //   const attacker= await game.players.find((player)=>player.userId===user.id)
-  //   const defender= await game.players.find((player)=>player.userId!==user.id)
-  // }
 
   //@Authorized()
   @Get('/games/:id([0-9]+)')
@@ -140,4 +132,3 @@ export default class GameController {
     return Game.find()
   }
 }
-
